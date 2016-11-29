@@ -3,7 +3,7 @@
 ###Abstract
 A fundamental problem that confronts peer-to-peer applications is
 to efficiently locate the node that stores a particular data item. This
-paper presents Chord, a distributed lookup protocol that addresses
+project presents Chord, a distributed lookup protocol that addresses
 this problem. Chord provides support for just one operation: given
 a key, it maps the key onto a node. Data location can be easily
 implemented on top of Chord by associating a key with each data
