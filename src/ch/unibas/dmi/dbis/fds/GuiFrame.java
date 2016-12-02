@@ -1,13 +1,10 @@
 package ch.unibas.dmi.dbis.fds;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.FlowLayout;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Map;
-
-import javax.swing.*;
 
 
 /**
@@ -74,7 +71,7 @@ public class GuiFrame extends JFrame implements ActionListener {
         super();
         network = createNetwork();
 
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setBackground(Color.lightGray);
         getContentPane().setLayout(new BorderLayout());
         getContentPane().add(network.getPanel(), BorderLayout.NORTH);
@@ -330,9 +327,9 @@ public class GuiFrame extends JFrame implements ActionListener {
     private void setData(PeerNode node, String key, String value) {
         if (node == null) node = network.getRandomPeer();
 
-        node = node.lookupNodeForItem(null, key);
+        node = node.lookupNodeForItem(node, key);
 
-        node.setDataItem(null, key, value);
+        node.setDataItem(node, key, value);
     }
 }
 

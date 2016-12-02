@@ -35,7 +35,7 @@ public class Message {
     private String sourceNodeId;
 
     /**
-     * Destination node id of message.
+     * Destination node id of message
      */
     private String destinationNodeId;
 

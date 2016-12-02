@@ -15,7 +15,7 @@ public class Configuration {
 	static {
 		if (DEBUG_MODE) {
 			INITIAL_NODES = 5;
-			NETWORK_BITS = 3;
+			NETWORK_BITS = 4;
 		} else {
 			INITIAL_NODES = 20;
 			NETWORK_BITS = 24;

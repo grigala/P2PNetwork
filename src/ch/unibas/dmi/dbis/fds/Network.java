@@ -1,10 +1,6 @@
 package ch.unibas.dmi.dbis.fds;
 
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
+import java.awt.*;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -203,7 +199,7 @@ public abstract class Network {
      *
      * @param node to be joined
      */
-    void addPeer(PeerNode node) {
+    public void addPeer(PeerNode node) {
         nodes.put(node.getNodeID(), node);
     }
 

@@ -42,8 +42,8 @@ public class ChordPeerImpl extends ChordPeerNode {
 	}
 	
 	/**
-	 * Sets the successor. Shortcut for setting the first finger table entry.
-	 * 
+     * Sets the successor. Shortcut for sett ing the first finger table entry.
+     *
 	 * @param newSuccessor the new successor
 	 */
 	private void setSuccessor(ChordPeerImpl newSuccessor) {
@@ -113,15 +113,14 @@ public class ChordPeerImpl extends ChordPeerNode {
 	 * @return the chord peer
 	 */
 	protected final ChordPeerImpl findSuccessor(PeerNode origin, long id) {
-		ChordPeerImpl ret = null;
-		network.logPassedMessage(Message.MessageType.CHORD_FIND_SUCCESSOR, origin, this);
+        ChordPeerImpl ret;
+        network.logPassedMessage(Message.MessageType.CHORD_FIND_SUCCESSOR, origin, this);
 
-		/* BEGIN IMPLEMENTATION */
-		System.err.println("findSuccessor() NOT IMPLEMENTED"); //FIXME: your turn!
-		/* END IMPLEMENTATION */
-		
-		network.logPassedMessage(Message.MessageType.CHORD_FIND_SUCCESSOR_RESPONSE, this, origin);
-		return ret;
+        ret = findPredecessor(origin, id);
+        ret = ret.getSuccessor(origin);
+
+        network.logPassedMessage(Message.MessageType.CHORD_FIND_SUCCESSOR_RESPONSE, this, origin);
+        return ret;
 	}
 	
 	/**
@@ -135,12 +134,13 @@ public class ChordPeerImpl extends ChordPeerNode {
 		ChordPeerImpl ret = null;
 		network.logPassedMessage(Message.MessageType.CHORD_FIND_PREDECESSOR, origin, this);
 
-		/* BEGIN IMPLEMENTATION */
-		System.err.println("findPredecessor() NOT IMPLEMENTED");  //FIXME: your turn!
-		/* END IMPLEMENTATION */
-		
-		network.logPassedMessage(Message.MessageType.CHORD_FIND_PREDECESSOR_RESPONSE, this, origin);
-		return ret;
+        ret = this;
+        while (!network.isHashElementOf(id, ret.n, ret.getSuccessor(origin).n, false, true)) {
+            ret = ret.closestPrecedingFinger(origin, id);
+        }
+
+        network.logPassedMessage(Message.MessageType.CHORD_FIND_PREDECESSOR_RESPONSE, this, origin);
+        return ret;
 	}
 
 	/**
@@ -151,8 +151,8 @@ public class ChordPeerImpl extends ChordPeerNode {
 	 * @return the chord peer
 	 */
 	protected final ChordPeerImpl closestPrecedingFinger(PeerNode origin, long id) {
-		ChordPeerImpl ret = null;
-		network.logPassedMessage(Message.MessageType.CHORD_CLOSEST_PRECEDING_FINGER, origin, this);
+        ChordPeerImpl ret;
+        network.logPassedMessage(Message.MessageType.CHORD_CLOSEST_PRECEDING_FINGER, origin, this);
 
 		ret = this;
 		for (int i=m-1; i >= 0; --i) {
@@ -197,12 +197,15 @@ public class ChordPeerImpl extends ChordPeerNode {
 	protected void stabilize(PeerNode origin) {
 		network.logPassedMessage(Message.MessageType.CHORD_STABILIZE, origin, this);
 
-		/* BEGIN IMPLEMENTATION */
-		System.err.println("stabilize() NOT IMPLEMENTED"); //FIXME: your turn!
-		/* END IMPLEMENTATION */
-		
-		network.logPassedMessage(Message.MessageType.CHORD_STABILIZE_RESPONSE, this, origin);
-	}
+        ChordPeerImpl node = getPredecessor(origin).getSuccessor(origin);
+        if (network.isHashElementOf(this.n, predecessor.n, this.n, false, false)) {
+            setSuccessor(node);
+        }
+
+        getSuccessor(this).chordNotify(node);
+
+        network.logPassedMessage(Message.MessageType.CHORD_STABILIZE_RESPONSE, this, origin);
+    }
 	
 	/**
 	 * Chord notify. This should be a very slight variation of the function presented in figure 7, page 7.
@@ -216,18 +219,16 @@ public class ChordPeerImpl extends ChordPeerNode {
 	public void chordNotify(ChordPeerImpl n1) {
 		network.logPassedMessage(Message.MessageType.CHORD_NOTIFY, n1, this);
 
-		/* BEGIN IMPLEMENTATION */
-		System.err.println("chordNotify() NOT IMPLEMENTED");  //FIXME: your turn!
-		/* END IMPLEMENTATION */
-		
-		network.logPassedMessage(Message.MessageType.CHORD_NOTIFY_RESPONSE, this, n1);
+        if (this.predecessor == null || network.isHashElementOf(n1.n, predecessor.n, n, false, false)) {
+            setPredecessor(this, n1);
+        }
+
+        network.logPassedMessage(Message.MessageType.CHORD_NOTIFY_RESPONSE, this, n1);
 	}
 
 	@Override
 	public void fixFingers(int fromInclusive, int toInclusive) {
-		/* BEGIN IMPLEMENTATION */
-		System.err.println("fixFingers() NOT IMPLEMENTED");  //FIXME: your turn!
-		/* END IMPLEMENTATION */
+
 	}
 	
 	/* 
@@ -253,12 +254,11 @@ public class ChordPeerImpl extends ChordPeerNode {
 		//log incoming query message
 		network.logPassedMessage(Message.MessageType.LOOKUP, originOfQuery, this);
 
+        long id = network.hash(key);
 
-		/* BEGIN IMPLEMENTATION */
-		System.err.println("lookupNodeForItem() NOT IMPLEMENTED");  //FIXME: your turn!
-		/* END IMPLEMENTATION */
-		
-		//log outgoing message
+        node = closestPrecedingFinger(originOfQuery, id);
+
+        //log outgoing message
 		network.logPassedMessage(Message.MessageType.LOOKUP_RESPONSE, this, originOfQuery);
 		return node;
 	}
