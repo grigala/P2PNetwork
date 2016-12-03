@@ -48,7 +48,7 @@ public class ChordPeerImpl extends ChordPeerNode {
 	 * @param newSuccessor the new successor
 	 */
 	private void setSuccessor(ChordPeerImpl newSuccessor) {
-        System.err.println(this + " sets successor to " + newSuccessor);
+        //System.err.println(this + " sets successor to " + newSuccessor);
         finger.get(0).setNode(newSuccessor);
 	}
 	
@@ -103,7 +103,7 @@ public class ChordPeerImpl extends ChordPeerNode {
 		}
 		this.addConnection(newPredecessor.nodeID);
 		predecessor = newPredecessor;
-        System.err.println(this + " sets predecessor to " + newPredecessor);
+        //System.err.println(this + " sets predecessor to " + newPredecessor);
         network.logPassedMessage(Message.MessageType.CHORD_SET_PREDECESSOR_RESPONSE, this, origin);
 	}
 	
@@ -200,9 +200,9 @@ public class ChordPeerImpl extends ChordPeerNode {
 		network.logPassedMessage(Message.MessageType.CHORD_STABILIZE, origin, this);
 
         ChordPeerImpl x = getSuccessor(origin).getPredecessor(origin);
-        System.err.println("caller: " + n + "| successor: " + getSuccessor(origin).n + "|successor.predecessor: " + x.n);
+        System.out.println("stabilize caller: " + n + "| successor: " + getSuccessor(origin).n + "|successor.predecessor: " + x.n);
         if (getSuccessor(origin).n == this.n || network.isHashElementOf(x.n, this.n, getSuccessor(origin).n,false, false)) {
-            System.err.println("is better");
+            //System.out.println("is better");
             setSuccessor(x);
         }
         this.chordNotify(getSuccessor(origin));
@@ -222,13 +222,13 @@ public class ChordPeerImpl extends ChordPeerNode {
 	 */
 	public void chordNotify(ChordPeerImpl n1) {
 		network.logPassedMessage(Message.MessageType.CHORD_NOTIFY, n1, this);
-        System.err.println(this + " calls notify on " + n1);
+        System.out.println(this + " calls notify on " + n1);
         if (network.isHashElementOf(this.n, n1.predecessor.n, n1.n, false, false)) {
-            System.err.println(this + " is predecessor of " + n1);
+            System.out.println(this + " is predecessor of " + n1);
             n1.setPredecessor(this, this);
             //setSuccessor(n1);
         } else {
-            System.err.println(this + " is NOT predecessor of " + n1);
+            System.out.println(this + " is NOT predecessor of " + n1);
         }
 
         /*ChordPeerImpl successor = getSuccessor(this);
@@ -277,22 +277,41 @@ public class ChordPeerImpl extends ChordPeerNode {
         //trivial case
         if(this.n == itemId){
             node = this;
-        }
-
-        if(useSuccessorsOnly){
-            ChordPeerImpl successor = getSuccessor(originOfQuery);
-            if(network.isHashElementOf(itemId, n, successor.n, false, true)){
-                //is the successor responsible, i.e. is the item higher than my id and lower or equal than the successor?
-                node = getSuccessor(originOfQuery);
-
-            }else{
-                //recursively ask other nodes if their successor is responsible for it
-                node = successor.lookupNodeForItem(originOfQuery, key);
-            }
         }else{
-            //TODO
-            node = closestPrecedingFinger(originOfQuery, itemId);
+            if(useSuccessorsOnly){
+                ChordPeerImpl successor = getSuccessor(this);
+                if(network.isHashElementOf(itemId, n, successor.n, false, true)){
+                    //is the successor responsible, i.e. is the item higher than my id and lower or equal than the successor?
+                    node = getSuccessor(this);
+                    if(DEBUG)
+                        System.out.println(node + " has the item '" + key + "' with item_id '" + itemId + "'");
+
+                }else{
+                    //recursively ask other nodes if their successor is responsible for it
+                    if(DEBUG)
+                        System.out.println(this + " asks " + successor + "(successor) for item '" + key +  "' with item_id '" + itemId + "'");
+                    node = successor.lookupNodeForItem(this, key);
+                }
+            }else{
+                //TODO
+                ChordPeerImpl n1 = closestPrecedingFinger(this, itemId);
+                if (network.isHashElementOf(n1.n, n, itemId, false, true)){
+                    // n1 is closer to the item than me
+                    // ask if there is someone closer
+                    if(DEBUG)
+                        System.out.println(this + " asks " + n1 + " for item '" + key +  "' with item_id '" + itemId + "'");
+
+                    node = n1.lookupNodeForItem(this, key);
+                }else{
+                    // no one is closer than me
+                    // --> my successor is responsible for the item
+                    node = this.getSuccessor(this);
+                    if(DEBUG)
+                        System.out.println(node + " has the item '" + key + "' with item_id '" + itemId + "'");
+                }
+            }
         }
+
 
         //log outgoing message
 		network.logPassedMessage(Message.MessageType.LOOKUP_RESPONSE, this, originOfQuery);
