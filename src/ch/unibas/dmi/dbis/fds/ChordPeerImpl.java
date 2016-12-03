@@ -19,6 +19,7 @@ public class ChordPeerImpl extends ChordPeerNode {
 	 * This setting should probably conditionally enable or disable some behaviour. ;-)
 	 */
 	private final boolean useSuccessorsOnly;
+	private static final boolean DEBUG = true;
 	
 	/**
 	 * Instantiates a new chord peer.
@@ -272,9 +273,26 @@ public class ChordPeerImpl extends ChordPeerNode {
 		//log incoming query message
 		network.logPassedMessage(Message.MessageType.LOOKUP, originOfQuery, this);
 
-        long id = network.hash(key);
+        long itemId = network.hash(key);
+        //trivial case
+        if(this.n == itemId){
+            node = this;
+        }
 
-        node = closestPrecedingFinger(originOfQuery, id);
+        if(useSuccessorsOnly){
+            ChordPeerImpl successor = getSuccessor(originOfQuery);
+            if(network.isHashElementOf(itemId, n, successor.n, false, true)){
+                //is the successor responsible, i.e. is the item higher than my id and lower or equal than the successor?
+                node = getSuccessor(originOfQuery);
+
+            }else{
+                //recursively ask other nodes if their successor is responsible for it
+                node = successor.lookupNodeForItem(originOfQuery, key);
+            }
+        }else{
+            //TODO
+            node = closestPrecedingFinger(originOfQuery, itemId);
+        }
 
         //log outgoing message
 		network.logPassedMessage(Message.MessageType.LOOKUP_RESPONSE, this, originOfQuery);
