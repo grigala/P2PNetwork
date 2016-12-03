@@ -39,6 +39,7 @@ public class GuiFrame extends JFrame implements ActionListener {
         return peer;
     }
 
+    private int count = Configuration.INITIAL_NODES;
 
     /**
      * Network used for this user interface session.
@@ -250,11 +251,8 @@ public class GuiFrame extends JFrame implements ActionListener {
             updateFingers(node);
         } else if (e.getSource().equals(buttonAddNode)) {
             // TODO implement dynamic id's naming for nodes
-            try {
-                network.createPeer("NewNode"); //
-            } catch (NullPointerException ex) {
-                ex.printStackTrace();
-            }
+            this.createPeer("Node_" + count);
+            count++;
         } else if (e.getSource().equals(buttonRemoveNode)) {
             // TODO
             System.err.println("buttonRemoveNode() not implemented");
