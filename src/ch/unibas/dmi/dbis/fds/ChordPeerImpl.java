@@ -47,7 +47,8 @@ public class ChordPeerImpl extends ChordPeerNode {
 	 * @param newSuccessor the new successor
 	 */
 	private void setSuccessor(ChordPeerImpl newSuccessor) {
-		finger.get(0).setNode(newSuccessor);
+        System.err.println(this + " sets successor to " + newSuccessor);
+        finger.get(0).setNode(newSuccessor);
 	}
 	
 
@@ -101,8 +102,8 @@ public class ChordPeerImpl extends ChordPeerNode {
 		}
 		this.addConnection(newPredecessor.nodeID);
 		predecessor = newPredecessor;
-		
-		network.logPassedMessage(Message.MessageType.CHORD_SET_PREDECESSOR_RESPONSE, this, origin);
+        System.err.println(this + " sets predecessor to " + newPredecessor);
+        network.logPassedMessage(Message.MessageType.CHORD_SET_PREDECESSOR_RESPONSE, this, origin);
 	}
 	
 	/**
@@ -179,10 +180,10 @@ public class ChordPeerImpl extends ChordPeerNode {
 		setPredecessor(this, this);
 		if (n1 != null) {
 			setSuccessor(n1.findSuccessor(this, n));
-			if (useSuccessorsOnly) {
-				stabilize(this);
-			}
-			// TODO: move keys
+            if (useSuccessorsOnly) {
+                stabilize(this);
+            }
+            // TODO: move keys
 		}
 		else {
 			setSuccessor(this);
@@ -197,12 +198,14 @@ public class ChordPeerImpl extends ChordPeerNode {
 	protected void stabilize(PeerNode origin) {
 		network.logPassedMessage(Message.MessageType.CHORD_STABILIZE, origin, this);
 
-        ChordPeerImpl node = getPredecessor(origin).getSuccessor(origin);
-        if (network.isHashElementOf(this.n, predecessor.n, this.n, false, false)) {
-            setSuccessor(node);
+        ChordPeerImpl x = getSuccessor(origin).getPredecessor(origin);
+        System.err.println("caller: " + n + "| successor: " + getSuccessor(origin).n + "|successor.predecessor: " + x.n);
+        if (getSuccessor(origin).n == this.n || network.isHashElementOf(x.n, this.n, getSuccessor(origin).n,false, false)) {
+            System.err.println("is better");
+            setSuccessor(x);
         }
+        this.chordNotify(getSuccessor(origin));
 
-        getSuccessor(this).chordNotify(node);
 
         network.logPassedMessage(Message.MessageType.CHORD_STABILIZE_RESPONSE, this, origin);
     }
@@ -218,19 +221,34 @@ public class ChordPeerImpl extends ChordPeerNode {
 	 */
 	public void chordNotify(ChordPeerImpl n1) {
 		network.logPassedMessage(Message.MessageType.CHORD_NOTIFY, n1, this);
-
-        if (this.predecessor == null || network.isHashElementOf(n1.n, predecessor.n, n, false, false)) {
-            setPredecessor(this, n1);
+        System.err.println(this + " calls notify on " + n1);
+        if (network.isHashElementOf(this.n, n1.predecessor.n, n1.n, false, false)) {
+            System.err.println(this + " is predecessor of " + n1);
+            n1.setPredecessor(this, this);
+            //setSuccessor(n1);
+        }else {
+            System.err.println(this + " is NOT predecessor of " + n1);
         }
+
+        /*ChordPeerImpl successor = getSuccessor(this);
+        if (successor == this || successor == null || network.isHashElementOf(n1.n, this.n, successor.n, false, false)){
+            System.err.println("n1 is successor");
+            setSuccessor(n1);
+        }*/
 
         network.logPassedMessage(Message.MessageType.CHORD_NOTIFY_RESPONSE, this, n1);
 	}
 
 	@Override
-	public void fixFingers(int fromInclusive, int toInclusive) {
-
-	}
-	
+    public void fixFingers(int fromInclusive, int toInclusive) {
+        long start;
+        ChordPeerImpl tmp;
+        stabilize(this);
+        for (int i = fromInclusive; i <= toInclusive; i++) {
+            tmp = findSuccessor(this, finger.get(i).getStart());
+            finger.get(i).setNode(tmp);
+        }
+    }
 	/* 
 	 * In Chord, GET requests should only be directed to the node responsible for the data.
 	 * Therefore, we retrieve data only locally.
@@ -244,7 +262,7 @@ public class ChordPeerImpl extends ChordPeerNode {
 		String resData = localData.get(key);
 
 		//log result of query message
-		network.logPassedMessage(Message.MessageType.GET_RESPONSE, this , originOfQuery);
+		network.logPassedMessage(Message.MessageType.GET_RESPONSE, this, originOfQuery);
 		return resData;
 	}
 

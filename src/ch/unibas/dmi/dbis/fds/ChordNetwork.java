@@ -18,6 +18,6 @@ public class ChordNetwork extends Network {
 
     @Override
     public PeerNode createPeer(String id) {
-        return new ChordPeerImpl(this, id, false);
+        return new ChordPeerImpl(this, id, true);
     }
 }

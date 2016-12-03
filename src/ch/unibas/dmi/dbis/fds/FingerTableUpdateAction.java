@@ -29,5 +29,6 @@ public class FingerTableUpdateAction extends AbstractAction {
         if (to >= chord.m)
             to = chord.m - 1;
         chord.fixFingers(from, to);
+
     }
 }
