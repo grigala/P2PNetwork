@@ -45,12 +45,14 @@ public class GuiFrame extends JFrame implements ActionListener {
      */
     private Network network;
 
-	/* GUI elements */
+    /* GUI elements */
     private final DefaultComboBoxModel peersModel = new DefaultComboBoxModel();
     private final JComboBox boxPeers = new JComboBox(peersModel);
     private final JButton buttonSetData = new JButton("Set");
     private final JButton buttonGetData = new JButton("Get");
     private final JButton buttonClearLog = new JButton("Clear log");
+    private final JButton buttonAddNode = new JButton("Add Node");
+    private final JButton buttonRemoveNode = new JButton("Remove Node");
     private final JTextField textKey = new JTextField("Test", 20);
     private final JTextField textValue = new JTextField(20);
     private final JTextArea textLog = new JTextArea(10, 25);
@@ -97,6 +99,10 @@ public class GuiFrame extends JFrame implements ActionListener {
         panel.add(buttonSetData);
         buttonClearLog.addActionListener(this);
         panel.add(buttonClearLog);
+        buttonAddNode.addActionListener(this);
+        panel.add(buttonAddNode);
+        buttonRemoveNode.addActionListener(this);
+        panel.add(buttonRemoveNode);
 
         buttonsPanel.add(panel);
 
@@ -242,6 +248,17 @@ public class GuiFrame extends JFrame implements ActionListener {
             this.createPeer("TEXT");
         } else if (e.getSource().equals(buttonFingersUpdate)) {
             updateFingers(node);
+        } else if (e.getSource().equals(buttonAddNode)) {
+            // TODO implement dynamic id's naming for nodes
+            try {
+                network.createPeer("NewNode"); //
+            } catch (NullPointerException ex) {
+                ex.printStackTrace();
+            }
+        } else if (e.getSource().equals(buttonRemoveNode)) {
+            // TODO
+            System.err.println("buttonRemoveNode() not implemented");
+
         }
         buttonFingersUpdate.setEnabled(o instanceof PeerNode && buttonFingersManual.isSelected());
         updateTimer();

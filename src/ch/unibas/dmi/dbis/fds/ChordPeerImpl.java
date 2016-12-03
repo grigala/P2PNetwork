@@ -226,7 +226,7 @@ public class ChordPeerImpl extends ChordPeerNode {
             System.err.println(this + " is predecessor of " + n1);
             n1.setPredecessor(this, this);
             //setSuccessor(n1);
-        }else {
+        } else {
             System.err.println(this + " is NOT predecessor of " + n1);
         }
 
