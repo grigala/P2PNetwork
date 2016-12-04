@@ -18,7 +18,7 @@ public abstract class ChordPeerNode extends PeerNode {
 		this.m = network.getNumberOfBits();
 		this.n = network.hash(nodeID);
 	}
-	
+
 	/**
 	 * Slight variant of fix_fingers() (Figure 7, page 7):
 	 * We can update a batch of the finger table in one go, and

@@ -25,18 +25,16 @@ public class ChordNetwork extends Network {
     public void removePeer(String id) {
         ChordPeerImpl peer = (ChordPeerImpl) getPeer(id);
 
-        if(peer==null){
+        if (peer == null) {
             System.err.println("Peer " + id + " not found.");
             return;
         }
         //make peer.successor handle data of peer
         peer.quitNetwork();
 
-
         //remove peer from gui
         nodes.remove(id);
         System.out.println("Removed peer " + peer);
-
 
     }
 }

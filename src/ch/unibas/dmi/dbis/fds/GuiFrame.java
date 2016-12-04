@@ -39,8 +39,6 @@ public class GuiFrame extends JFrame implements ActionListener {
         return peer;
     }
 
-    private int count = Configuration.INITIAL_NODES;
-
     /**
      * Network used for this user interface session.
      */
@@ -256,13 +254,10 @@ public class GuiFrame extends JFrame implements ActionListener {
         } else if (e.getSource().equals(buttonAddNode)) {
             String key = textAddRemoveKey.getText();
             this.createPeer(key);
-            count++;
         } else if (e.getSource().equals(buttonRemoveNode)) {
             String key = textAddRemoveKey.getText();
             network.removePeer(key);
             this.repaint();
-            //System.err.println("buttonRemoveNode() not implemented");
-
         }
         buttonFingersUpdate.setEnabled(o instanceof PeerNode && buttonFingersManual.isSelected());
         updateTimer();
@@ -349,7 +344,6 @@ public class GuiFrame extends JFrame implements ActionListener {
         if (node == null) node = network.getRandomPeer();
 
         node = node.lookupNodeForItem(node, key);
-
         node.setDataItem(node, key, value);
     }
 }
