@@ -360,12 +360,14 @@ public class ChordPeerImpl extends ChordPeerNode {
         for(String networkID: keys){
             PeerNode networkPeer = network.getPeer(networkID);
             //remove connections between nodes
-            if(networkPeer.hasConnectionTo(this.nodeID)){
-                networkPeer.removeConnection(this.nodeID);
-            }
-            //not sure if both necessary
-            if(this.hasConnectionTo(networkID)){
-                this.removeConnection(networkID);
+            synchronized (network){
+                if(networkPeer.hasConnectionTo(this.nodeID)){
+                    networkPeer.removeConnection(this.nodeID);
+                }
+                //not sure if both necessary
+                if(this.hasConnectionTo(networkID)){
+                    this.removeConnection(networkID);
+                }
             }
         }
     }
