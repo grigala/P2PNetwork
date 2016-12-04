@@ -5,7 +5,7 @@ public class Configuration {
 	 * true:  "DEBUG" mode
 	 * false: "PRODUCTION" mode
 	 */
-	private static final boolean DEBUG_MODE = false;
+	private static final boolean DEBUG_MODE = true;
 
 
 	public static final int INITIAL_NODES;

@@ -1,6 +1,9 @@
 package ch.unibas.dmi.dbis.fds;
 
 
+import java.util.Map;
+import java.util.Set;
+
 public class ChordPeerImpl extends ChordPeerNode {
 
 	/**
@@ -183,8 +186,28 @@ public class ChordPeerImpl extends ChordPeerNode {
 			setSuccessor(n1.findSuccessor(this, n));
             if (useSuccessorsOnly) {
                 stabilize(this);
+            }else{
+                //fix fingers include stabilize
+                fixFingers(0,finger.size()-1);
             }
-            // TODO: move keys
+            // move keys
+            // Keys that belong to new node(this):  successor.predecesssor.n<ID<=this.n or ID€(successor.predecessor.n,this.n]
+            // --> ask successor if he has such items
+
+            ChordPeerImpl successor = this.getSuccessor(this);
+            long itemID;
+            for(Map.Entry<String, String> entry: successor.getLocalData().entrySet()){
+                itemID = network.hash(entry.getKey());
+                if(network.isHashElementOf(itemID, successor.predecessor.n, this.n, false, true)){
+                    this.setDataItem(this, entry.getKey(), entry.getValue());
+                    successor.localData.remove(entry.getKey());
+                    if(DEBUG){
+                        System.out.println("Moved item " + entry.getKey() + " - " + entry.getValue() +
+                                " from " + successor + " to " + this);
+                    }
+
+                }
+            }
 		}
 		else {
 			setSuccessor(this);
@@ -246,6 +269,8 @@ public class ChordPeerImpl extends ChordPeerNode {
         ChordPeerImpl tmp;
         stabilize(this);
         for (int i = fromInclusive; i <= toInclusive; i++) {
+            if(i>=this.finger.size())
+                continue;
             tmp = findSuccessor(this, finger.get(i).getStart());
             finger.get(i).setNode(tmp);
         }
@@ -317,6 +342,33 @@ public class ChordPeerImpl extends ChordPeerNode {
 		network.logPassedMessage(Message.MessageType.LOOKUP_RESPONSE, this, originOfQuery);
 		return node;
 	}
+
+	/*
+	 * Call this for removing the node.
+	 */
+	public void quitNetwork(){
+	    // Assuming the data as well as the successor are correctly assigned,
+	    // the successor should always be responsible for the data of the removed node.
+        for(Map.Entry<String, String> entry : this.getLocalData().entrySet()){
+            getSuccessor(this).setDataItem(this, entry.getKey(), entry.getValue());
+        }
+
+        // separate connections
+        // dont use the set directly, as that causes some strange synchronization errors
+        Set<String> tmp = this.getConnections();
+        String[] keys = tmp.toArray(new String[tmp.size()]);
+        for(String networkID: keys){
+            PeerNode networkPeer = network.getPeer(networkID);
+            //remove connections between nodes
+            if(networkPeer.hasConnectionTo(this.nodeID)){
+                networkPeer.removeConnection(this.nodeID);
+            }
+            //not sure if both necessary
+            if(this.hasConnectionTo(networkID)){
+                this.removeConnection(networkID);
+            }
+        }
+    }
 
 	/* 
 	 * In Chord, SET requests should only be directed to the node responsible for the data.
