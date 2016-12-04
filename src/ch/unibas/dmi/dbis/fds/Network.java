@@ -379,5 +379,7 @@ public abstract class Network {
 
     public abstract PeerNode createPeer(String id);
 
-    public void removePeer(String id){return;};
+    public void removePeer(String id) {
+        return;
+    }
 }
