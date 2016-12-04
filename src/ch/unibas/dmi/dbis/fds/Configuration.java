@@ -5,12 +5,12 @@ public class Configuration {
 	 * true:  "DEBUG" mode
 	 * false: "PRODUCTION" mode
 	 */
-	private static final boolean DEBUG_MODE = true;
+	private static final boolean DEBUG_MODE = false;
 
 
 	public static final int INITIAL_NODES;
 	public static final int NETWORK_BITS;
-	public static final int DEFAULT_FINGER_UPDATE_INTERVAL = 2000;
+	public static final int DEFAULT_FINGER_UPDATE_INTERVAL = 1000;
 
 	static {
 		if (DEBUG_MODE) {

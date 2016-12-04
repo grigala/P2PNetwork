@@ -54,6 +54,8 @@ public class GuiFrame extends JFrame implements ActionListener {
     private final JButton buttonClearLog = new JButton("Clear log");
     private final JButton buttonAddNode = new JButton("Add Node");
     private final JButton buttonRemoveNode = new JButton("Remove Node");
+
+    private final JTextField textAddRemoveKey = new JTextField("Node_1", 20);
     private final JTextField textKey = new JTextField("Test", 20);
     private final JTextField textValue = new JTextField(20);
     private final JTextArea textLog = new JTextArea(10, 25);
@@ -104,6 +106,8 @@ public class GuiFrame extends JFrame implements ActionListener {
         panel.add(buttonAddNode);
         buttonRemoveNode.addActionListener(this);
         panel.add(buttonRemoveNode);
+
+        panel.add(textAddRemoveKey);
 
         buttonsPanel.add(panel);
 
@@ -251,11 +255,14 @@ public class GuiFrame extends JFrame implements ActionListener {
             updateFingers(node);
         } else if (e.getSource().equals(buttonAddNode)) {
             // TODO implement dynamic id's naming for nodes
-            this.createPeer("Node_" + count);
+            String key = textAddRemoveKey.getText();
+            this.createPeer(key);
             count++;
         } else if (e.getSource().equals(buttonRemoveNode)) {
-            // TODO
-            System.err.println("buttonRemoveNode() not implemented");
+            String key = textAddRemoveKey.getText();
+            network.removePeer(key);
+            this.repaint();
+            //System.err.println("buttonRemoveNode() not implemented");
 
         }
         buttonFingersUpdate.setEnabled(o instanceof PeerNode && buttonFingersManual.isSelected());
