@@ -254,7 +254,6 @@ public class GuiFrame extends JFrame implements ActionListener {
         } else if (e.getSource().equals(buttonFingersUpdate)) {
             updateFingers(node);
         } else if (e.getSource().equals(buttonAddNode)) {
-            // TODO implement dynamic id's naming for nodes
             String key = textAddRemoveKey.getText();
             this.createPeer(key);
             count++;
