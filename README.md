@@ -1,5 +1,5 @@
 Group:
-    Giorgi Grigashvili
+    Giorgi Grigalashvili
     Fabricio Arend Torres
 
 Notes for the code:
